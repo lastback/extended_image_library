@@ -149,21 +149,22 @@ class ExtendedNetworkImageProvider
       }
     }
 
-    if (result == null) {
-      try {
-        final Uint8List? data = await _loadNetwork(
-          key,
-          chunkEvents,
-        );
-        if (data != null) {
-          result = await instantiateImageCodec(data, decode);
-        }
-      } catch (e) {
-        if (printError) {
-          print(e);
-        }
-      }
-    }
+    ///_loadCache已经会访问网络了，没必要再次访问
+    // if (result == null) {
+    //   try {
+    //     final Uint8List? data = await _loadNetwork(
+    //       key,
+    //       chunkEvents,
+    //     );
+    //     if (data != null) {
+    //       result = await instantiateImageCodec(data, decode);
+    //     }
+    //   } catch (e) {
+    //     if (printError) {
+    //       print(e);
+    //     }
+    //   }
+    // }
 
     //Failed to load
     if (result == null) {
@@ -270,16 +271,17 @@ class ExtendedNetworkImageProvider
   }
 
   Future<HttpClientResponse> _getResponse(Uri resolved) async {
+    httpClient.connectionTimeout = timeLimit;
     final HttpClientRequest request = await httpClient.getUrl(resolved);
     headers?.forEach((String name, String value) {
       request.headers.add(name, value);
     });
     final HttpClientResponse response = await request.close();
-    if (timeLimit != null) {
-      response.timeout(
-        timeLimit!,
-      );
-    }
+    // if (timeLimit != null) {
+    //   response.timeout(
+    //     timeLimit!,
+    //   );
+    // }
     return response;
   }
 
